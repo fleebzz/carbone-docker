@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Carbone Docker wrapper tester</title>
+</head>
+<body>
+  <form onsubmit="formatData()" action="/" method="post" enctype="multipart/form-data">
+
+    <input type="file" name="template" id="template">
+    <input type="hidden" name="data" id="data">
+    <input type="hidden" name="format" value="pdf">
+    <input type="hidden" name="outputName" value="test.pdf">
+
+    <textarea name="_data" id="_data" cols="30" rows="10">{"firstname":"John"}</textarea>
+
+    <input type="submit" value="Générer">
+
+  </form>
+  <script>
+    function formatData() {
+      const _data = document.getElementById(`_data`).value;
+      let data = {};
+
+      try {
+        data = JSON.parse(_data);
+      } catch (e) {
+        console.error(`Cannot parse data : ${e}`);
+      }
+
+      document.getElementById(`data`).value = JSON.stringify(data);
+    }
+  </script>
+</body>
+</html>
