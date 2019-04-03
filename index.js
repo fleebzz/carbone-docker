@@ -22,8 +22,9 @@ app.post('/render', upload.single(`template`), async (req, res) => {
   const originalNameWOExt = template.originalname.split(`.`).slice(0, -1).join(`.`);
   const originalFormat = template.originalname.split(`.`).reverse()[0];
   let data = req.body.data;
-  const format = req.body.format || originalFormat;
-  const outputName = req.body.outputName || `${originalNameWOExt}.${format}`;
+  const options = req.body.options || {};
+  const convertTo = options.convertTo || originalFormat;
+  const outputName = options.outputName || `${originalNameWOExt}.${format}`;
   if (typeof data !== `object` || data === null) {
     try {
       data = JSON.parse(req.body.data);
@@ -33,7 +34,7 @@ app.post('/render', upload.single(`template`), async (req, res) => {
   }
 
   const options = {
-    convertTo: format,
+    convertTo: convertTo,
   };
 
   const report = await render(template.path, data, options);
