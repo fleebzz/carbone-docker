@@ -37,7 +37,7 @@ app.post('/render', upload.single(`template`), async (req, res) => {
 
   fs.remove(template.path);
 
-  res.setHeader(`Content-Disposition`, `attachment; filename=${outputName}`);
+  res.setHeader(`Content-Disposition`, `attachment; filename=${options.outputName}`);
   res.setHeader(`Content-Transfer-Encoding`, `binary`);
 	res.setHeader(`Content-Type`, `application/octet-stream`);
   res.send(report);
