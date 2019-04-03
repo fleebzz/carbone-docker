@@ -22,7 +22,10 @@ app.post('/render', upload.single(`template`), async (req, res) => {
   const originalNameWOExt = template.originalname.split(`.`).slice(0, -1).join(`.`);
   const originalFormat = template.originalname.split(`.`).reverse()[0];
   let data = req.body.data;
-  const options = req.body.options || {};
+  let options = {};
+  try {
+    options = JSON.parse(req.body.options);
+  } catch (e) {}
   options.convertTo = options.convertTo || originalFormat;
   options.outputName = options.outputName || `${originalNameWOExt}.${options.convertTo}`;
   if (typeof data !== `object` || data === null) {
