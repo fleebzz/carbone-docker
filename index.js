@@ -24,7 +24,7 @@ app.post('/render', upload.single(`template`), async (req, res) => {
   let data = req.body.data;
   const options = req.body.options || {};
   options.convertTo = options.convertTo || originalFormat;
-  options.outputName = options.outputName || `${originalNameWOExt}.${convertTo}`;
+  options.outputName = options.outputName || `${originalNameWOExt}.${options.convertTo}`;
   if (typeof data !== `object` || data === null) {
     try {
       data = JSON.parse(req.body.data);
