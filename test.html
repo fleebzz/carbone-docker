@@ -3,33 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <title>Carbone Docker wrapper tester</title>
+  <style>
+    label { display: block; margin: 1em 0 0 0; max-width: 600px;}
+    label input { width: 100%; }
+    textarea { width: 100%; height: 200px; }
+    input:invalid, textarea:invalid { box-shadow: 0 0 0 2px #f88; }
+    button { margin-top: 1em; }
+    form:invalid button { opacity: 0.5; }
+    pre { margin: 0; font-size: 95%; color: grey; }
+  </style>
 </head>
 <body>
-  <form onsubmit="formatData()" action="/render" method="post" target="_blank" enctype="multipart/form-data">
-
-    <input type="file" name="template" id="template">
-    <input type="hidden" name="data" id="data">
-    <input type="hidden" name="format" value="pdf">
-    <input type="hidden" name="outputName" value="test.pdf">
-
-    <textarea name="_data" id="_data" cols="30" rows="10">{"firstname":"John"}</textarea>
-
-    <input type="submit" value="Générer">
-
+  <form action="/render" method="post" target="_blank" enctype="multipart/form-data">
+    <label>
+      Template:
+      <input type="file" name="template" id="template" required>
+    </label>
+    <label>
+      Data:
+      <textarea name="data" id="data">{
+  "firstname":"John"
+}</textarea>
+    </label>
+    <pre>Datas to be inserted in the template represented by the {d.****}</pre>
+    <label>
+      Options:
+      <textarea name="options" id="options">{}</textarea>
+    </label>
+    <pre>"complement"   : {}    data which is represented by the {c.****}
+"convertTo"    : "pdf" || { "formatName", "formatOptions"} Convert the document in the format specified
+"extension"    : "odt" || undefined Specify the template extension
+"variableStr"  : ""    pre-declared variables,
+"lang"         : overwrite default lang. Ex. "fr"
+"translations" : overwrite all loaded translations {fr: {}, en: {}, es: {}}
+"enum"         : { ORDER_STATUS : ["open", "close", "sent"]
+"currencySource" : currency of data, "EUR"
+"currencyTarget" : default target currency when the formatter convCurr is used without target
+"currencyRates"  : rates, based on EUR { EUR : 1, USD : 1.14 }</pre>
+    <button type="submit">Generate</button>
   </form>
   <script>
-    function formatData() {
-      const _data = document.getElementById(`_data`).value;
-      let data = {};
-
+    function checkData(event) {
+      let element = event.target;
       try {
-        data = JSON.parse(_data);
+        const data = JSON.parse(element.value);
+        element.setCustomValidity("");
       } catch (e) {
-        console.error(`Cannot parse data : ${e}`);
+        element.setCustomValidity(e.toString());
       }
-
-      document.getElementById(`data`).value = JSON.stringify(data);
     }
+    document.getElementById('data').addEventListener('input', checkData);
+    document.getElementById('options').addEventListener('input', checkData);
   </script>
 </body>
 </html>
