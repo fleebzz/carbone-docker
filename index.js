@@ -1,6 +1,5 @@
 const path = require(`path`);
 const fs = require(`fs-extra`);
-const _ = require(`lodash`);
 const util = require(`util`);
 const carbone = require(`carbone`);
 const telejson = require(`telejson`);
@@ -15,8 +14,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const render = util.promisify(carbone.render);
 
-// Flagging default formatters to remove custom ones later
-_.forEach(carbone.formatters, formatter => formatter.$isDefault = true);
+const defaultFormatters = {...carbone.formatters};
 
 app.get('/', (req, res) => {
   res.sendFile(path.resolve(`./test.html`));
@@ -24,6 +22,10 @@ app.get('/', (req, res) => {
 
 app.post('/render', upload.single(`template`), async (req, res) => {
   const template = req.file;
+  if(!template) {
+    return res.status(400).send(`Template file required`);
+  }
+
   const originalNameWOExt = template.originalname.split(`.`).slice(0, -1).join(`.`);
   const originalFormat = template.originalname.split(`.`).reverse()[0];
   let data = req.body.data;
@@ -31,14 +33,16 @@ app.post('/render', upload.single(`template`), async (req, res) => {
   let formatters = {};
   try {
     options = JSON.parse(req.body.options);
-  } catch (e) {}
+  } catch (e) {
+    return res.status(400).send(`Can't parse options JSON: ${e}`);
+  }
   options.convertTo = options.convertTo || originalFormat;
   options.outputName = options.outputName || `${originalNameWOExt}.${options.convertTo}`;
   if (typeof data !== `object` || data === null) {
     try {
       data = JSON.parse(req.body.data);
     } catch (e) {
-      data = {};
+      return res.status(400).send(`Can't parse data JSON: ${e}`);
     }
   }
   try {
@@ -46,7 +50,7 @@ app.post('/render', upload.single(`template`), async (req, res) => {
   } catch (e) {}
 
   // Removing previous custom formatters before adding new ones
-  carbone.formatters = _.filter(carbone.formatters, formatter => formatter.$isDefault === true);
+  carbone.formatters = {...defaultFormatters};
 
   carbone.addFormatters(formatters);
 
@@ -56,7 +60,7 @@ app.post('/render', upload.single(`template`), async (req, res) => {
     report = await render(template.path, data, options);
   } catch (e) {
     console.log(e);
-    return res.status(500).send(`Internal server error`);
+    return res.status(500).send(`Internal server error: ${e}`);
   }
 
   fs.remove(template.path);
