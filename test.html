@@ -23,7 +23,9 @@
       let data = {};
 
       try {
+        
         data = JSON.parse(_data);
+      console.log(data);
       } catch (e) {
         console.error(`Cannot parse data : ${e}`);
       }

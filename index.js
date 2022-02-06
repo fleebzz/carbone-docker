@@ -26,11 +26,13 @@ app.post('/render', upload.single(`template`), async (req, res) => {
   const template = req.file;
   const originalNameWOExt = template.originalname.split(`.`).slice(0, -1).join(`.`);
   const originalFormat = template.originalname.split(`.`).reverse()[0];
+  console.log(req.body);
   let data = req.body.data;
   let options = {};
   let formatters = {};
   try {
-    options = JSON.parse(req.body.options);
+    options = {convertTo:req.body.format || originalFormat,
+    outputName:req.body.outputName || `${originalNameWOExt}.${options.convertTo}`};
   } catch (e) {}
   options.convertTo = options.convertTo || originalFormat;
   options.outputName = options.outputName || `${originalNameWOExt}.${options.convertTo}`;
@@ -53,6 +55,7 @@ app.post('/render', upload.single(`template`), async (req, res) => {
   let report = null;
 
   try {
+    console.log(options);
     report = await render(template.path, data, options);
   } catch (e) {
     console.log(e);
