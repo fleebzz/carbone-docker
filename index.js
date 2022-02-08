@@ -26,14 +26,12 @@ app.post('/render', upload.single(`template`), async (req, res) => {
   const template = req.file;
   const originalNameWOExt = template.originalname.split(`.`).slice(0, -1).join(`.`);
   const originalFormat = template.originalname.split(`.`).reverse()[0];
-  console.log(req.body);
   let data = req.body.data;
   let options = {};
   let formatters = {};
   try {
-    options = {convertTo:req.body.format || originalFormat,
-    outputName:req.body.outputName || `${originalNameWOExt}.${options.convertTo}`};
-  } catch (e) {}
+    options = JSON.parse(req.body.options);
+  } catch (e) { }
   options.convertTo = options.convertTo || originalFormat;
   options.outputName = options.outputName || `${originalNameWOExt}.${options.convertTo}`;
   if (typeof data !== `object` || data === null) {
@@ -45,7 +43,7 @@ app.post('/render', upload.single(`template`), async (req, res) => {
   }
   try {
     formatters = telejson.parse(req.body.formatters);
-  } catch (e) {}
+  } catch (e) { }
 
   // Removing previous custom formatters before adding new ones
   carbone.formatters = _.filter(carbone.formatters, formatter => formatter.$isDefault === true);
@@ -55,7 +53,6 @@ app.post('/render', upload.single(`template`), async (req, res) => {
   let report = null;
 
   try {
-    console.log(options);
     report = await render(template.path, data, options);
   } catch (e) {
     console.log(e);
@@ -66,7 +63,7 @@ app.post('/render', upload.single(`template`), async (req, res) => {
 
   res.setHeader(`Content-Disposition`, `attachment; filename=${options.outputName}`);
   res.setHeader(`Content-Transfer-Encoding`, `binary`);
-	res.setHeader(`Content-Type`, `application/octet-stream`);
+  res.setHeader(`Content-Type`, `application/octet-stream`);
   res.setHeader(`Carbone-Report-Name`, options.outputName);
 
   return res.send(report);
