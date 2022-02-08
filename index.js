@@ -31,7 +31,7 @@ app.post('/render', upload.single(`template`), async (req, res) => {
   let formatters = {};
   try {
     options = JSON.parse(req.body.options);
-  } catch (e) {}
+  } catch (e) { }
   options.convertTo = options.convertTo || originalFormat;
   options.outputName = options.outputName || `${originalNameWOExt}.${options.convertTo}`;
   if (typeof data !== `object` || data === null) {
@@ -43,7 +43,7 @@ app.post('/render', upload.single(`template`), async (req, res) => {
   }
   try {
     formatters = telejson.parse(req.body.formatters);
-  } catch (e) {}
+  } catch (e) { }
 
   // Removing previous custom formatters before adding new ones
   carbone.formatters = _.filter(carbone.formatters, formatter => formatter.$isDefault === true);
@@ -63,7 +63,7 @@ app.post('/render', upload.single(`template`), async (req, res) => {
 
   res.setHeader(`Content-Disposition`, `attachment; filename=${options.outputName}`);
   res.setHeader(`Content-Transfer-Encoding`, `binary`);
-	res.setHeader(`Content-Type`, `application/octet-stream`);
+  res.setHeader(`Content-Type`, `application/octet-stream`);
   res.setHeader(`Carbone-Report-Name`, options.outputName);
 
   return res.send(report);
