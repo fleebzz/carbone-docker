@@ -70,3 +70,7 @@ app.post('/render', upload.single(`template`), async (req, res) => {
 });
 
 app.listen(port, () => console.log(`Carbone wrapper listenning on port ${port}!`));
+
+process.on('SIGINT', () => {
+  process.exit(0);
+});
